@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Chatbot</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  </head>
+  <body
+    class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-5"
+  >
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">AI Chatbot</h2>
+
+    <div
+      class="chat-box w-full max-w-lg h-96 bg-white border border-gray-300 rounded-lg shadow-lg overflow-y-auto p-4 space-y-2"
+    >
+      <div class="text-gray-500">Start Chatting...</div>
+    </div>
+
+    <div class="w-full max-w-lg mt-4 flex space-x-2">
+      <input
+        type="text"
+        id="user-input"
+        placeholder="Type a message..."
+        class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+      />
+      <button
+        id="send-btn"
+        class="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+      >
+        Send
+      </button>
+    </div>
+    <script>
+      const chatBox = document.querySelector(".chat-box");
+      const userInput = document.getElementById("user-input");
+      const sendBtn = document.getElementById("send-btn");
+
+      function addMessage(text, sender) {
+        if (!chatBox) {
+          console.error("chatBox not found!");
+          return;
+        }
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add(
+          "message",
+          sender === "user" ? "user-message" : "bot-message"
+        );
+        messageDiv.innerText = text;
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      async function getAIResponse(userMessage) {
+        const API_KEY = "";
+
+        const apiUrl = "https://api.openai.com/v1/chat/completions";
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        };
+
+        const body = JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: "You are a helpful AI assistant." },
+            { role: "user", content: userMessage },
+          ],
+        });
+
+        try {
+          const response = await axios.post(apiUrl, body, { headers });
+          console.log(response.data);
+          return response.data.choices[0].message.content;
+        } catch (error) {
+          console.error("Error fetching AI response:", error);
+          return "Sorry, I couldn't connect to AI.";
+        }
+      }
+
+      sendBtn.addEventListener("click", async () => {
+        const userMessage = userInput.value.trim();
+        if (userMessage === "") return;
+
+        addMessage(userMessage, "user");
+        userInput.value = "";
+
+        const aiResponse = await getAIResponse(userMessage);
+        addMessage(aiResponse, "bot");
+      });
+
+      userInput.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+          sendBtn.click();
+        }
+      });
+    </script>
+  </body>
+</html>
