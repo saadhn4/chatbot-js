@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 5000;
+const PORT = 5001;
 
 app.use(express.static(path.join(__dirname, "build"))); //iske upar dusre backend routes nai likhna
 
@@ -25,5 +25,5 @@ app.get("/*", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`${PORT}`);
+  console.log(`Running on ${PORT}`);
 });
